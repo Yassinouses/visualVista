@@ -1008,7 +1008,7 @@ if (postback === "ratio") {
 // Refresh data every 2 minutes
 setInterval(fetchDataAndPost,   0.2* 60 * 1000); */
 
-app.listen(3000, () => {
+app.listen(process.env.PORT, () => {
   console.log(`App is on port : 3000`);
   keepAppRunning();
 });
