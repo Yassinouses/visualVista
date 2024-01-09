@@ -11,7 +11,7 @@ const https = require("https");
 const { createClient } = require('@supabase/supabase-js');
 
 
-const supabase = createClient('https://byhvjfuafvkhbjxirfbm.supabase.co', "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5aHZqZnVhZnZraGJqeGlyZmJtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcwNDYzOTEwMSwiZXhwIjoyMDIwMjE1MTAxfQ.R8WfTmRyBJ63FGnC-AszT8_0sBKCam9ucsF4yU7aX-A", { auth: { persistSession: false} });
+const supabase = createClient('https://byhvjfuafvkhbjxirfbm.supabase.co', process.env.KEY, { auth: { persistSession: false} });
 /*____api_data______*/
 
 const url = "https://cognise.art/api/mobile/txt2img/generate/v2";
@@ -21,13 +21,13 @@ const headers = {
 };
 
 const data = new URLSearchParams();
-         
+
 /*------api_data-------*/
 
 function keepAppRunning() {
   setInterval(
     () => {
-      https.get("https://c1de82b2-aea7-4333-b3a6-14348c1d0f1b-00-cihd67ki3snb.riker.replit.dev/ping", 
+      https.get(`${process.env.RENDER_EXTERNAL_URL}/ping`, 
 //  "https://c1de82b2-aea7-4333-b3a6-14348c1d0f1b-00-cihd67ki3snb.riker.replit.dev/"
                 (resp) => {
         if (resp.statusCode === 200) {
@@ -42,8 +42,7 @@ function keepAppRunning() {
 }
 
 const botly = new Botly({
-  accessToken:
-    "EAAKnNSZAx9wwBOxWhxWgMjeZCfoJ9jZAj4azzWBC9lZBEhn9NFEzuKdxdfp3xaC3lHB6QMDTGwlCNY3UmOYvsbZBY8HNq4wOAwMtu0l69ZBZCtProFz24nplhFkIWRDZC3iUZAbwchbYNb4KnlmVZCJrad6Ku83M8s8Wf9b5OY2ZBx81PI4gy40ZB2gBxAVb45LSmbUd",
+  accessToken:process.env.TOKEN,
   notificationType: Botly.CONST.REGULAR,
   FB_URL: "https://graph.facebook.com/v2.6/",
 });
@@ -85,15 +84,15 @@ const useData = JSON.parse(rawData);
 
 // Check each user's timer value
 useData.users.forEach((user) => {
-  if (user.timer > 0) {
-    // console.log(`Countdown for Sender ID ${user.senderId}`);
+  if (user[0].timer > 0) {
+    // console.log(`Countdown for Sender ID ${user[0].senderId}`);
 
-    user.resumetimer = true;
-    user.waiting = true;
+    user[0].resumetimer = true;
+    user[0].waiting = true;
   }
-  if (user.imgtimer > 0) {
-    user.imgwaiting = true;
-    user.resumeimgtimer = true;
+  if (user[0].imgtimer > 0) {
+    user[0].imgwaiting = true;
+    user[0].resumeimgtimer = true;
   }
 
   // Perform your countdown action here for users with timer > 0
@@ -105,7 +104,7 @@ fs.writeFileSync("./imagine_database2.json", JSON.stringify(useData, null, 1));
 
 /* ---- DATABASE ---- */
 
-const userData = require("./imagine_database2.json");
+//const userData = require("./imagine_database2.json");
 
 
 async function checkSenderId(userId) {
@@ -150,54 +149,11 @@ async function updateUser(id, update) {
 
 /* ---- DATABASE ---- */
 
-const onMessages = async (senderId, message) =>{
-  const user = checkSenderId(senderId);
-  if (user == undefined) {
-    // no user
-    const newUser = {
-      senderId: senderId,
-      context: null,
-      choose: true,
-      cont: false,
-      styleid: null,
-      waiting: false,
-      timer: 0,
-      resumetimer: false,
-      imgtimer: 0,
-      resumeimgtimer: false,
-      imgwaiting: false,
-      imgcont: true,
-      messenger: true,
-      lite: false,
-      img_ratio : "cover", 
-    };
-
-    const result = createUser(newUser);
-    if (result == "done") {
-     botly.sendText({ id: senderId, text: 
-        "تمت اضافتك لقاعدة البيانات بنجاح ، يرجى انتظار انتهاء تحديث البوت" });
-      /*botly.sendButtons({
-        id: senderId,
-        text: "مرحبا 👋\n انا بوت 🤖 لتوليد الصور  🌇 ب 12 ستايل مختلف 🏙️  اضغط زر [البدأ 🔵 ] لتحديد الستايل الذي تريده  \n ايضا يمكنني التعرف على الصور 🌁 التي ترسلها لي 📥   ",
-        buttons: [
-          botly.createPostbackButton("البدأ 🔵", "123"),
-          // Add more buttons as needed
-        ],
-      });*/
-    } else {
-      botly.sendText({ id: senderId, text: "حدث خطأ عند إضافتك" });
-    }
-  }
-    else {  
-botly.sendText({ id: senderId, text: " يتم تحديث البوت ، سنعود قريبا ...." });
-  }
-}
-const onPostBacks = async (senderId, message, postback) => {}
 
 const onMessage = async (senderId, message) => {
-  
-  const user = checkSenderId(senderId);
-  if (user == undefined) {
+
+  const user = await checkSenderId(senderId);
+  if (!user[0]) {
     // no user
     const newUser = {
       senderId: senderId,
@@ -217,8 +173,7 @@ const onMessage = async (senderId, message) => {
       img_ratio : "cover" , 
     };
 
-    const result = createUser(newUser);
-    if (result == "done") {
+    await createUser(newUser).then(() => {
       botly.sendButtons({
         id: senderId,
         text: "مرحبا 👋\n انا بوت 🤖 لتوليد الصور  🌇 ب 12 ستايل مختلف 🏙️  اضغط زر [البدأ 🔵 ] لتحديد الستايل الذي تريده  \n ايضا يمكنني التعرف على الصور 🌁 التي ترسلها لي 📥   ",
@@ -227,39 +182,37 @@ const onMessage = async (senderId, message) => {
           // Add more buttons as needed
         ],
       });
-    } else {
-      botly.sendText({ id: senderId, text: "حدث خطأ عند إضافتك" });
-    }
+    });
   } 
   else {
-   /* if (user.styleid = null) {
+   /* if (user[0].styleid = null) {
       await updateUser(senderId, {
        styleid : "5",
       });
     }*/
-    if (user.resumetimer) {
+    if (user[0].resumetimer) {
       countdown(senderId, user);
 
       await updateUser(senderId, {
         resumetimer: false,
       });
     }
-    if (user.resumeimgtimer) {
+    if (user[0].resumeimgtimer) {
       countdownimg(senderId, user);
       await updateUser(senderId, {
         resumeimgtimer: false,
       });
     }
     async function countdown(senderId, user) {
-      for (let i = user.timer; i > 0; i--) {
+      for (let i = user[0].timer; i > 0; i--) {
         // console.log(i);
         await updateUser(senderId, {
-          timer: user.timer - 1,
+          timer: user[0].timer - 1,
         });
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
 
-      await new Promise((resolve) => setTimeout(resolve, user.timer * 1000));
+      await new Promise((resolve) => setTimeout(resolve, user[0].timer * 1000));
       await updateUser(senderId, {
         cont: true,
         waiting: false,
@@ -288,14 +241,14 @@ const onMessage = async (senderId, message) => {
     }
 
     async function countdownimg(senderId, user) {
-      for (let i = user.imgtimer; i > 0; i--) {
+      for (let i = user[0].imgtimer; i > 0; i--) {
         //console.log("img", i);
         await updateUser(senderId, {
-          imgtimer: user.imgtimer - 1,
+          imgtimer: user[0].imgtimer - 1,
         });
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
-      await new Promise((resolve) => setTimeout(resolve, user.timer * 1000));
+      await new Promise((resolve) => setTimeout(resolve, user[0].timer * 1000));
       await updateUser(senderId, {
         imgcont: true,
         imgwaiting: false,
@@ -328,7 +281,7 @@ const onMessage = async (senderId, message) => {
         /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
       return arabicPattern.test(text);
     }
-    if (user.styleid === null) {
+    if (user[0].styleid === null) {
       botly.sendText({
         id: senderId,
         text: `
@@ -336,7 +289,7 @@ const onMessage = async (senderId, message) => {
               `,
       });
     }
-    
+
 
     if (message.message.text) {
 
@@ -355,23 +308,23 @@ const onMessage = async (senderId, message) => {
           text: "توقف عن كونك مقززا 🤢🫵"
         });
       } else {
-      if (user.waiting) {
+      if (user[0].waiting) {
         botly.sendText({
           id: senderId,
           text: `
-          🔴للحفاظ على افضل اداء للسيرفر 📟 , عليك الانتظار 30 ثانية 🕜 بين كل طلب 📶  \n تبقى [ ${user.timer}] ثانية ⏰
+          🔴للحفاظ على افضل اداء للسيرفر 📟 , عليك الانتظار 30 ثانية 🕜 بين كل طلب 📶  \n تبقى [ ${user[0].timer}] ثانية ⏰
           `,
         });
       }
       // Handle text message
       console.log("Received text:", message.message.text);
 
-      if (user.cont) {
+      if (user[0].cont) {
         botly.sendText({
           id: senderId,
           text: ` يتم معالجة طلبك 🎨\n 🕜انتظر من فضلك....`,
         });
-        if (user.timer > 0) {
+        if (user[0].timer > 0) {
           await updateUser(senderId, {
             waiting: true,
             cont: false,
@@ -380,21 +333,21 @@ const onMessage = async (senderId, message) => {
           countdown(senderId, user);
           botly.sendText({
             id: senderId,
-            text: `🔴للحفاظ على افضل اداء للسيرفر 📟 , عليك الانتظار 30 ثانية 🕜 بين كل طلب 📶  \n تبقى [ ${user.timer}] ثانية ⏰ `,
+            text: `🔴للحفاظ على افضل اداء للسيرفر 📟 , عليك الانتظار 30 ثانية 🕜 بين كل طلب 📶  \n تبقى [ ${user[0].timer}] ثانية ⏰ `,
           });
-        } else if (user.timer <= 0) {
+        } else if (user[0].timer <= 0) {
           await updateUser(senderId, {
             waiting: true,
             cont: false,
             timer: 30,
           });
 
-          // console.log("this is it ", user.styleid);
+          // console.log("this is it ", user[0].styleid);
           //data.append('sid', `${styleid}`);
 
 
-          
-          
+
+
           if (isArabic(message.message.text)) {
             // console.log("The text is in Arabic.");
             const translate = await axios.get(
@@ -405,9 +358,9 @@ const onMessage = async (senderId, message) => {
           }
 
           //console.log("The text is not in Arabic.");
-          
-          
-          
+
+
+
 
           try {
             const url = "https://cognise.art/api/mobile/txt2img/generate/v2";
@@ -424,27 +377,27 @@ const data = new URLSearchParams();
             data.append("sampler_index", "Euler a");
             //data.append("img_ratio", "square");
 
-            if (!user.img_ratio) {
+            if (!user[0].img_ratio) {
     await updateUser(senderId, {
         img_ratio: "cover",
     });
-              user.img_ration = "cover"
+              user[0].img_ration = "cover"
 }
-          if (!user.styleid ) {
-    user.styleid = '7';
+          if (!user[0].styleid ) {
+    user[0].styleid = '7';
 }  
-            data.append("img_ratio",`${user.img_ratio}` ); 
+            data.append("img_ratio",`${user[0].img_ratio}` ); 
              data.append("generation_steps", "20");
             data.append("batch_size", "1");
           data.append("generation_seed",`${senderId}`);
             data.append("hit_point", "mobile");
             data.append('user_uuid', Math.floor(Math.random() * 1000000).toString());
-            data.append("sid", `${user.styleid}`);
+            data.append("sid", `${user[0].styleid}`);
             data.append("generation_prompt", `${message.message.text}`);
             //data.append("tz", "Africa/Algiers");
                       /*_______data append _____*/
-            
-            
+
+
               botly.sendAction({ id: senderId, action: 'typing_on' });
               const response = await axios.post(url, data, { headers });
 
@@ -460,13 +413,13 @@ const data = new URLSearchParams();
                       },
                       quick_replies: [
                           {
-                            
+
                               content_type: "text",
                               title: " تغيير الستايل",
                               payload: "backcp",
                           },
                         {
-                            
+
                               content_type: "text",
                               title: "الاعدادات",
                               payload: "تيتيتبت",
@@ -474,7 +427,7 @@ const data = new URLSearchParams();
                       ],
                   });
                 //await delay(3000);
-            
+
             botly.sendText({
                 id: senderId,
               text: `/________[  ${message.message.text}  ]  _________ /`,
@@ -497,15 +450,15 @@ const data = new URLSearchParams();
               botly.sendAction({ id: senderId, action: 'typing_off' });
 
               countdown(senderId, user);
-            
+
           }
-            
-          
+
+
           catch (error) {
               console.log("style problem");
-            
+
             const data = new URLSearchParams();
-            
+
               await updateUser(senderId, {
                   cont: true,
                   waiting: false,
@@ -528,26 +481,26 @@ const data = new URLSearchParams();
         }
       }
     } }
-    
+
     else if (
       message.message.attachments &&
       message.message.attachments[0].type === "image"
     ) {
 
 
-      
-      if (user.imgwaiting) {
+
+      if (user[0].imgwaiting) {
         botly.sendText({
           id: senderId,
-          text: `🔴للحفاظ على افضل اداء للسيرفر 📟 , عليك الانتظار 30 ثانية 🕜 لارسال 📶 صورة جديدة 🏙️  \n تبقى [ ${user.timer}] ثانية ⏰ `,
+          text: `🔴للحفاظ على افضل اداء للسيرفر 📟 , عليك الانتظار 30 ثانية 🕜 لارسال 📶 صورة جديدة 🏙️  \n تبقى [ ${user[0].timer}] ثانية ⏰ `,
         });
       }
-      if (user.imgcont) {
+      if (user[0].imgcont) {
         botly.sendText({
           id: senderId,
           text: `يتم التعرف على الصورة🏙️ \n انتظر 🕜 من فضلك ... `,
         });
-        if (user.imgtimer > 0) {
+        if (user[0].imgtimer > 0) {
           /*await updateUser(senderId, {
           waiting: true,
           cont: false,
@@ -559,7 +512,7 @@ const data = new URLSearchParams();
           countdownimg(senderId, user);
           botly.sendText({
             id: senderId,
-            text: `🔴للحفاظ على افضل اداء للسيرفر 📟 , عليك الانتظار 30 ثانية 🕜 لارسال 📶 صورة جديدة 🏙️  \n تبقى [ ${user.timer}] ثانية ⏰ `,
+            text: `🔴للحفاظ على افضل اداء للسيرفر 📟 , عليك الانتظار 30 ثانية 🕜 لارسال 📶 صورة جديدة 🏙️  \n تبقى [ ${user[0].timer}] ثانية ⏰ `,
           });
         } else {
           await updateUser(senderId, {
@@ -591,7 +544,7 @@ const data = new URLSearchParams();
             try {
               botly.sendAction({ id: senderId, action: 'typing_on' });
 
-              
+
               const response = await axios.post(url, form, {
                 headers: {
                   Authorization:
@@ -611,8 +564,8 @@ const data = new URLSearchParams();
                 `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=ar&dt=t&q=${response.data.data.caption}`,
               );
               //console.log("tran", translate2.data[0][0]);
-              
-              
+
+
               const caption = translate2.data[0][0][0];
 
  botly.sendText({
@@ -632,11 +585,11 @@ const data = new URLSearchParams();
                 ],
             }); 
 
-              
+
               /*botly.sendText({
                 id: senderId,
                 text: `${caption}`,
-                
+
               });*/
               botly.sendAction({ id: senderId, action: 'typing_off' });
           } 
@@ -653,7 +606,7 @@ const data = new URLSearchParams();
                 text: ` خاصية التعرف على الصور معطلة `,
               });
               botly.sendAction({ id: senderId, action: 'typing_off' });
-              
+
             }
           }
           async function downloadImage(url) {
@@ -677,7 +630,7 @@ const data = new URLSearchParams();
                 // console.log("Image deleted after 15 seconds:", imagePath);
               }, 30000);
             } catch (error) {
-              
+
             //  console.log("Error:", error.message);
             }
           }
@@ -703,8 +656,8 @@ const data = new URLSearchParams();
 
 const onPostBack = async (senderId, message, postback) => {
 
-  const user = checkSenderId(senderId);
-  if (user == undefined) {
+  const user = await checkSenderId(senderId);
+  if (!user[0]) {
     // no user
     const newUser = {
       senderId: senderId,
@@ -738,11 +691,11 @@ const onPostBack = async (senderId, message, postback) => {
       botly.sendText({ id: senderId, text: "حدث خطأ عند إضافتك" });
     }
   } else {
-  const user = checkSenderId(senderId);
+ // const user = await checkSenderId(senderId);
   if (message.postback && message.postback.title.startsWith("اختيار")) {
-    const user = checkSenderId(senderId);
+   // const user = await checkSenderId(senderId);
 
-    if (user.timer === 0) {
+    if (user[0].timer === 0) {
       await updateUser(senderId, {
         cont: true,
       });
@@ -807,7 +760,7 @@ const onPostBack = async (senderId, message, postback) => {
       message.message.text &&
       message.message.text.startsWith("تغيير"))
   ) {
-    if (user.messenger) {
+    if (user[0].messenger) {
       const style = await axios.get(`https://cognise.art/api/styles`, {
         headers,
       });
@@ -865,7 +818,7 @@ const onPostBack = async (senderId, message, postback) => {
         aspectRatio: Botly.CONST.IMAGE_ASPECT_RATIO.HORIZONTAL,
       });
     }
-    if (user.lite) {
+    if (user[0].lite) {
       const style = await axios.get(`https://cognise.art/api/styles`, {
         headers,
       });
@@ -941,7 +894,7 @@ const onPostBack = async (senderId, message, postback) => {
           " ابعاد الصور 🌆 " 
                                    , "ratio"),
       ],
-      
+
     });
   }
 if (postback === "ratio") {
@@ -1028,7 +981,7 @@ if (postback === "ratio") {
     }
 
 
-    
+
   if (postback === "lite") {
     await updateUser(senderId, {
       lite: true,
@@ -1059,4 +1012,3 @@ app.listen(3000, () => {
   console.log(`App is on port : 3000`);
   keepAppRunning();
 });
-//fijgubjnm.moliykdtcyvb,n
