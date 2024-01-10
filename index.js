@@ -147,8 +147,6 @@ async function updateUser(id, update) {
 };
 
 
-
-
 /* ---- DATABASE ---- */
 
 
