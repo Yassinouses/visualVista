@@ -11,7 +11,7 @@ const https = require("https");
 const { createClient } = require('@supabase/supabase-js');
 
 
-const supabase = createClient('https://byhvjfuafvkhbjxirfbm.supabase.co', process.env.KEY, { auth: { persistSession: false} });
+const supabase = createClient('https://byhvjfuafvkhbjxirfbm.supabase.co', process.env.KEYS, { auth: { persistSession: false} });
 /*____api_data______*/
 
 const url = "https://cognise.art/api/mobile/txt2img/generate/v2";
