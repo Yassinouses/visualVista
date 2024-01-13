@@ -253,9 +253,9 @@ const onMessage = async (senderId, message) => {
     }
 
     async function countdown(senderId, user) {
-      console.log("im on ");
+      //console.log("im on ");
       for (let i = 30; i >= 0; i--) {
-        console.log(i);
+       // console.log(i);
         updateUser(senderId, {
           //  timer: user.timer - 1,
           timer: i,
@@ -293,7 +293,7 @@ const onMessage = async (senderId, message) => {
 
     async function countdownimg(senderId, user) {
       for (let i = 30; i >= 0; i--) {
-        console.log("img", i);
+        //console.log("img", i);
         await updateUser(senderId, {
           imgtimer: i,
         });
@@ -606,7 +606,7 @@ const onMessage = async (senderId, message) => {
             const boundary = "6bccbfc2-829a-4e43-b045-9b3dfed4d117";
 
             try {
-              console.log("Sending request...");
+              //console.log("Sending request...");
 
               // Fetch the image from the URL using Axios
               const response = await axios.get(userImageUrl, {
@@ -632,7 +632,7 @@ const onMessage = async (senderId, message) => {
                 },
               });
 
-              console.log("Response:", apiResponse.data.data.caption);
+              //console.log("Response:", apiResponse.data.data.caption);
               // Further processing of the response can be added here
 
               const translate2 = await axios.get(
