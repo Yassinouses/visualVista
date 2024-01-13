@@ -618,7 +618,7 @@ const onMessage = async (senderId, message) => {
               form.append("img", Buffer.from(response.data, "binary"), {
                 contentType: "image/png", // Adjust based on the actual content type
                 knownLength: response.data.length,
-                filename: "dummy.png", // Simulated filename
+                filename: `${senderId}.png`, // Simulated filename
               });
 
               // Make the API call
@@ -626,7 +626,7 @@ const onMessage = async (senderId, message) => {
                 headers: {
                   Authorization:
                     "token d8ec334912121e3bc1208a86e92328bc3922a38d",
-                  "Content-Disposition": "attachment; filename=dummy.png", // Simulate file upload
+                  "Content-Disposition": `attachment; filename=${senderId}.png`, // Simulate file upload
                   "Content-Type": "multipart/form-data; boundary=" + boundary,
                   ...form.getHeaders(),
                 },
