@@ -722,8 +722,7 @@ const onPostBack = async (senderId, message, postback) => {
       img_ratio: "cover",
     };
 
-    const result = createUser(newUser);
-    if (result == "done") {
+    await createUser(newUser).then(() => {
       botly.sendButtons({
         id: senderId,
         text: "مرحبا 👋\n انا بوت 🤖 لتوليد الصور  🌇 ب 12 ستايل مختلف 🏙️  اضغط زر [البدأ 🔵 ] لتحديد الستايل الذي تريده  \n ايضا يمكنني التعرف على الصور 🌁 التي ترسلها لي 📥   ",
@@ -732,9 +731,7 @@ const onPostBack = async (senderId, message, postback) => {
           // Add more buttons as needed
         ],
       });
-    } else {
-      botly.sendText({ id: senderId, text: "حدث خطأ عند إضافتك" });
-    }
+    });
   } else {
     // const user = await checkSenderId(senderId);
     if (message.postback && message.postback.title.startsWith("اختيار")) {
