@@ -9,7 +9,7 @@ const FormData = require("form-data");
 const app = express();
 const https = require("https");
 const { createClient } = require("@supabase/supabase-js");
-const schedule = require("node-schedule");
+//const schedule = require("node-schedule");
 
 
 const supabase = createClient(
