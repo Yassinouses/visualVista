@@ -675,7 +675,7 @@ const onMessage = async (senderId, message) => {
               });
               botly.sendText({
                 id: senderId,
-                text: ` خاصية التعرف على الصور معطلة `,
+                text: ` خاصية التعرف على الصور معطلة حاليا . اعد المحاولة لاحقا`,
               });
               botly.sendAction({ id: senderId, action: "typing_off" });
             }
