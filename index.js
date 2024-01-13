@@ -11,6 +11,7 @@ const https = require("https");
 const { createClient } = require("@supabase/supabase-js");
 const schedule = require("node-schedule");
 
+
 const supabase = createClient(
   "https://byhvjfuafvkhbjxirfbm.supabase.co",
   process.env.KEY,
