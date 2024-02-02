@@ -490,7 +490,7 @@ const onMessage = async (senderId, message) => {
               botly.sendAction({ id: senderId, action: "typing_on" });
               const response = await axios.post(url, data, { headers });
 
-              for (let i = 0; i < 1; i++) {
+              for (let i = 0; i < 4; i++) {
                 console.log("............imgurl:..... generated.............");
                 const imgurl = response.data.data.images[i].image;
 
