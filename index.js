@@ -372,8 +372,6 @@ const onMessage = async (senderId, message) => {
         "مبتذل",
         "Indelicate",
         "مشين",
-        "Disgusting",
-        "فاسد",
         "Corrupt",
         "Twisted",
         "مسيء",
@@ -477,7 +475,7 @@ const onMessage = async (senderId, message) => {
               }
               data.append("img_ratio", `${user.img_ratio}`);
               data.append("generation_steps", "20");
-              data.append("batch_size", "1");
+              data.append("batch_size", "4");
               data.append("generation_seed", `${senderId}`);
               data.append("hit_point", "mobile");
               data.append(
