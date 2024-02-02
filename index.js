@@ -514,24 +514,24 @@ const onMessage = async (senderId, message) => {
                   ],
                 });
                 //await delay(3000);
-
-                botly.sendText({
-                  id: senderId,
-                  text: `/________[  ${message.message.text}  ]  _________ /`,
-                  quick_replies: [
-                    {
-                      content_type: "text",
-                      title: "تغيير الستايل",
-                      payload: "coi",
-                    },
-                    {
-                      content_type: "text",
-                      title: "الاعدادات",
-                      payload: "hghghh",
-                    },
-                  ],
-                });
               }
+              
+              botly.sendText({
+                id: senderId,
+                text: `/________[  ${message.message.text}  ]  _________ /`,
+                quick_replies: [
+                  {
+                    content_type: "text",
+                    title: "تغيير الستايل",
+                    payload: "coi",
+                  },
+                  {
+                    content_type: "text",
+                    title: "الاعدادات",
+                    payload: "hghghh",
+                  },
+                ],
+              });
 
               // Remove typing indicator after sending all images
               botly.sendAction({ id: senderId, action: "typing_off" });
