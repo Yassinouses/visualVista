@@ -334,13 +334,13 @@ const onMessage = async (senderId, message) => {
       return arabicPattern.test(text);
     }
     if (user.styleid === null) {
-user.styleid=5;
-      /*botly.sendText({
+
+      botly.sendText({
         id: senderId,
         text: `
             يرجى الضغط على زر [البدأ🔵] او اختيار الستايل🪧
               `,
-      });*/
+      });
     }
 
     if (message.message.text) {
