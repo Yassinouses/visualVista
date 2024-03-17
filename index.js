@@ -126,8 +126,8 @@ fs.writeFileSync("./imagine_database2.json", JSON.stringify(useData, null, 1));
       return data
     }
 };*/
-
-async function checkSenderId(userId) {
+async function checkSenderId(userId) 
+{
   const { data, error } = await supabase
     .from("users")
     .select("*")
