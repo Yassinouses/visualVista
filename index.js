@@ -336,6 +336,7 @@ const onMessage = async (senderId, message) => {
       return arabicPattern.test(text);
     }
     if (user.styleid === null) {
+
       botly.sendText({
         id: senderId,
         text: `
